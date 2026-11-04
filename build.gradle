@@ -14,3 +14,4 @@ android {
         versionName '1.0'
     }
 }
+id 'com.android.application' version '8.7.3' apply false
