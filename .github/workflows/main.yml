@@ -25,7 +25,10 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build APK
-        run: gradle assembleDebug --stacktrace
+        run: |
+  pwd
+  find . -name "MainActivity.java"
+  gradle clean assembleDebug --info
 
       - name: Check APK
         run: |
