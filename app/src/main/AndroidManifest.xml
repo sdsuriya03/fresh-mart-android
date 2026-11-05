@@ -4,8 +4,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:label="Fresh Mart"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+    android:label="Fresh Mart"
+    android:icon="@drawable/file_00000000465c82119313753c78271191"
+    android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
             android:name=".MainActivity"
             android:exported="true">
