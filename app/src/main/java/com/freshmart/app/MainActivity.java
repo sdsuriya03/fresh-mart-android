@@ -1,22 +1,24 @@
 package com.freshmart.app;
 
-import android.app.Activity;
-import android.os.Bundle;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.webkit.WebView;
-import android.webkit.WebSettings;
-import android.webkit.WebViewClient;
+import android.os.Bundle;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
-import android.webkit.GeolocationPermissions;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient.FileChooserParams;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
 
-public class MainActivity extends Activity {
+import androidx.appcompat.app.AppCompatActivity;
 
-    WebView webView;
-    ValueCallback<Uri[]> fileCallback;
-    static final int FILE_REQUEST = 100;
+public class MainActivity extends AppCompatActivity {
+
+    private WebView webView;
+
+    private static final String SITE_URL =
+            "https://elaborate-mousse-b703f9.netlify.app";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,61 +28,135 @@ public class MainActivity extends Activity {
         setContentView(webView);
 
         WebSettings settings = webView.getSettings();
+
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
-        settings.setGeolocationEnabled(true);
+        settings.setAllowFileAccess(true);
+        settings.setAllowContentAccess(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        settings.setSupportMultipleWindows(false);
 
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebChromeClient(new WebChromeClient());
 
-        webView.setWebChromeClient(new WebChromeClient() {
+        // HTML -> Android bridge
+        webView.addJavascriptInterface(new WebAppInterface(), "Android");
+
+        webView.setWebViewClient(new WebViewClient() {
 
             @Override
-            public void onGeolocationPermissionsShowPrompt(
-                String origin,
-                GeolocationPermissions.Callback callback) {
-                callback.invoke(origin, true, false);
+            public boolean shouldOverrideUrlLoading(
+                    WebView view,
+                    android.webkit.WebResourceRequest request) {
+
+                String url = request.getUrl().toString();
+
+                if (isExternalUrl(url)) {
+                    openExternal(url);
+                    return true;
+                }
+
+                return false;
             }
 
             @Override
-            public boolean onShowFileChooser(
-                WebView view,
-                ValueCallback<Uri[]> callback,
-                FileChooserParams params) {
+            public boolean shouldOverrideUrlLoading(
+                    WebView view,
+                    String url) {
 
-                fileCallback = callback;
+                if (isExternalUrl(url)) {
+                    openExternal(url);
+                    return true;
+                }
 
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*");
-
-                startActivityForResult(
-                    Intent.createChooser(intent, "Select Photo"),
-                    FILE_REQUEST
-                );
-
-                return true;
+                return false;
             }
         });
 
-        webView.loadUrl("https://heroic-dragon-8d99d1.netlify.app");
+        webView.loadUrl(SITE_URL);
+    }
+
+    private boolean isExternalUrl(String url) {
+        if (url == null) return false;
+
+        String lower = url.toLowerCase();
+
+        return lower.startsWith("upi://")
+                || lower.startsWith("intent://")
+                || lower.startsWith("whatsapp://")
+                || lower.startsWith("https://wa.me/")
+                || lower.startsWith("https://api.whatsapp.com/")
+                || lower.startsWith("tel:")
+                || lower.startsWith("mailto:")
+                || lower.startsWith("market:");
+    }
+
+    private void openExternal(String url) {
+        try {
+
+            Intent intent;
+
+            if (url.toLowerCase().startsWith("intent://")) {
+
+                intent = Intent.parseUri(
+                        url,
+                        Intent.URI_INTENT_SCHEME
+                );
+
+            } else {
+
+                intent = new Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(url)
+                );
+            }
+
+            startActivity(intent);
+
+        } catch (ActivityNotFoundException e) {
+
+            Toast.makeText(
+                    MainActivity.this,
+                    "இந்த phone-ல் தேவையான App கிடைக்கவில்லை",
+                    Toast.LENGTH_LONG
+            ).show();
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    MainActivity.this,
+                    "App திறக்க முடியவில்லை",
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+    }
+
+    public class WebAppInterface {
+
+        @JavascriptInterface
+        public void openExternal(String url) {
+
+            runOnUiThread(() -> {
+
+                if (url != null && isExternalUrl(url)) {
+                    openExternal(url);
+                } else {
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Invalid link",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            });
+        }
     }
 
     @Override
-    protected void onActivityResult(
-        int requestCode, int resultCode, Intent data) {
+    public void onBackPressed() {
 
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == FILE_REQUEST && fileCallback != null) {
-            Uri[] results = null;
-
-            if (resultCode == RESULT_OK && data != null
-                && data.getData() != null) {
-                results = new Uri[]{data.getData()};
-            }
-
-            fileCallback.onReceiveValue(results);
-            fileCallback = null;
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
         }
     }
 }
