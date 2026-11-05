@@ -138,25 +138,22 @@ public class MainActivity extends Activity {
                 }
             }
 
-            @Override
-            public boolean onCreateWindow(
-                    WebView view,
-                    boolean isDialog,
-                    boolean isUserGesture,
-                    android.os.Message resultMsg) {
+        @Override
+public boolean onCreateWindow(
+        WebView view,
+        boolean isDialog,
+        boolean isUserGesture,
+        android.os.Message resultMsg) {
 
-                WebView.HitTestResult hit =
-                        view.getHitTestResult();
+    WebView.HitTestResult hit = view.getHitTestResult();
+    String url = hit != null ? hit.getExtra() : null;
 
-                String url =
-                        hit != null ? hit.getExtra() : null;
+    if (url != null) {
+        handleExternalUrl(Uri.parse(url));
+    }
 
-                if (url != null) {
-                    handleExternalUrl(Uri.parse(url));
-                }
-
-                return false;
-            }
+    return false;
+}
         });
 
         // UPDATED FRESH MART WEBSITE
