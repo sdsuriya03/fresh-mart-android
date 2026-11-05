@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.loadUrl("https://heroic-dragon-8d99d1.netlify.app");
+        webView.loadUrl("https://elaborate-mousse-b703f9.netlify.app");
     }
 
     private boolean handleExternalUrl(Uri uri) {
