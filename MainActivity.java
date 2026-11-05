@@ -7,8 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.webkit.GeolocationPermissions;
-import android.webkit.ValueCallback;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -16,17 +15,19 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
+import java.net.URISyntaxException;
 
 public class MainActivity extends Activity {
 
-    private static final int FILE_CHOOSER_REQUEST = 1001;
-    private static final int LOCATION_PERMISSION_REQUEST = 1002;
-
     private WebView webView;
-    private ValueCallback<Uri[]> filePathCallback;
-    private GeolocationPermissions.Callback geoCallback;
-    private String geoOrigin;
+
+    private static final String SITE_URL =
+            "https://heroic-dragon-8d99d1.netlify.app";
+
+    private static final int FILE_CHOOSER_REQUEST = 1001;
+    private static final int LOCATION_REQUEST = 2001;
+
+    private android.webkit.ValueCallback<Uri[]> filePathCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,102 +40,38 @@ public class MainActivity extends Activity {
 
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
         settings.setAllowFileAccess(true);
+        settings.setAllowContentAccess(true);
+        settings.setGeolocationEnabled(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setSupportMultipleWindows(false);
-        settings.setGeolocationEnabled(true);
 
-        settings.setUserAgentString(
-                settings.getUserAgentString() + " FreshMartAndroid"
-        );
+        webView.setWebChromeClient(new WebChromeClient() {
 
-        webView.setWebViewClient(new WebViewClient() {
-
-            @Override
-            public boolean shouldOverrideUrlLoading(
-                    WebView view,
-                    WebResourceRequest request) {
-
-                Uri uri = request.getUrl();
-
-                if (uri != null && isExternalScheme(uri)) {
-                    handleExternalUrl(uri);
-                    return true;
-                }
-
-                return false;
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(
-                    WebView view,
-                    String url) {
-
-                if (url == null) {
-                    return true;
-                }
-
-                Uri uri = Uri.parse(url);
-
-                if (isExternalScheme(uri)) {
-                    handleExternalUrl(uri);
-                    return true;
-                }
-
-                return false;
-            }
-
-            @Override
-            public void onPageStarted(
-                    WebView view,
-                    String url,
-                    android.graphics.Bitmap favicon) {
-
-                super.onPageStarted(view, url, favicon);
-
-                if (url != null) {
-                    Uri uri = Uri.parse(url);
-
-                    if (isExternalScheme(uri)) {
-                        view.stopLoading();
-                        handleExternalUrl(uri);
-                    }
-                }
-            }
-        });
-
-        webView.setWebChromeClient(new WebChromeClient()); {
-webView.addJavascriptInterface(new Object() {
-    @android.webkit.JavascriptInterface
-    public void openExternal(String url) {
-        runOnUiThread(() -> handleExternalUrl(android.net.Uri.parse(url)));
-    }
-}, "Android");
             @Override
             public boolean onShowFileChooser(
-                    WebView view,
-                    ValueCallback<Uri[]> callback,
-                    FileChooserParams params) {
+                    WebView webView,
+                    android.webkit.ValueCallback<Uri[]> filePathCallback,
+                    FileChooserParams fileChooserParams) {
 
-                if (filePathCallback != null) {
-                    filePathCallback.onReceiveValue(null);
+                if (MainActivity.this.filePathCallback != null) {
+                    MainActivity.this.filePathCallback.onReceiveValue(null);
                 }
 
-                filePathCallback = callback;
+                MainActivity.this.filePathCallback =
+                        filePathCallback;
 
-                Intent intent = params.createIntent();
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                Intent intent =
+                        fileChooserParams.createIntent();
 
                 try {
                     startActivityForResult(
                             intent,
                             FILE_CHOOSER_REQUEST
                     );
-
                 } catch (ActivityNotFoundException e) {
 
-                    filePathCallback = null;
+                    MainActivity.this.filePathCallback = null;
 
                     Toast.makeText(
                             MainActivity.this,
@@ -151,55 +88,90 @@ webView.addJavascriptInterface(new Object() {
             @Override
             public void onGeolocationPermissionsShowPrompt(
                     String origin,
-                    GeolocationPermissions.Callback callback) {
+                    android.webkit.GeolocationPermissions.Callback callback) {
 
-                geoOrigin = origin;
-                geoCallback = callback;
+                if (checkSelfPermission(
+                        Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                        &&
+                        checkSelfPermission(
+                                Manifest.permission.ACCESS_COARSE_LOCATION)
+                                != PackageManager.PERMISSION_GRANTED) {
 
-                if (ActivityCompat.checkSelfPermission(
-                        MainActivity.this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-                        ||
-                    ActivityCompat.checkSelfPermission(
-                        MainActivity.this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED) {
-
-                    callback.invoke(origin, true, false);
-
-                } else {
-
-                    ActivityCompat.requestPermissions(
-                            MainActivity.this,
+                    requestPermissions(
                             new String[]{
                                     Manifest.permission.ACCESS_FINE_LOCATION,
                                     Manifest.permission.ACCESS_COARSE_LOCATION
                             },
-                            LOCATION_PERMISSION_REQUEST
+                            LOCATION_REQUEST
                     );
                 }
+
+                callback.invoke(origin, true, false);
             }
         });
 
-        // Fresh Mart website
-        webView.loadUrl(
-               "https://heroic-dragon-8d99d1.netlify.app" 
+        // HTML -> Android bridge
+        webView.addJavascriptInterface(
+                new WebAppInterface(),
+                "Android"
         );
+
+        webView.setWebViewClient(
+                new WebViewClient() {
+
+                    @Override
+                    public boolean shouldOverrideUrlLoading(
+                            WebView view,
+                            WebResourceRequest request) {
+
+                        Uri uri = request.getUrl();
+
+                        if (isExternalScheme(uri)) {
+                            handleExternalUrl(uri);
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public boolean shouldOverrideUrlLoading(
+                            WebView view,
+                            String url) {
+
+                        Uri uri = Uri.parse(url);
+
+                        if (isExternalScheme(uri)) {
+                            handleExternalUrl(uri);
+                            return true;
+                        }
+
+                        return false;
+                    }
+                }
+        );
+
+        webView.loadUrl(SITE_URL);
     }
 
     private boolean isExternalScheme(Uri uri) {
 
-        if (uri == null || uri.getScheme() == null) {
+        if (uri == null) {
             return false;
         }
 
-        String scheme =
-                uri.getScheme().toLowerCase();
+        String scheme = uri.getScheme();
+
+        if (scheme == null) {
+            return false;
+        }
+
+        scheme = scheme.toLowerCase();
 
         return scheme.equals("upi")
-                || scheme.equals("whatsapp")
                 || scheme.equals("intent")
+                || scheme.equals("whatsapp")
                 || scheme.equals("tel")
                 || scheme.equals("mailto")
                 || scheme.equals("market");
@@ -249,6 +221,14 @@ webView.addJavascriptInterface(new Object() {
                     "GPay / PhonePe / Paytm போன்ற UPI app இல்லை",
                     Toast.LENGTH_LONG
             ).show();
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    this,
+                    "UPI app open panna mudiyala",
+                    Toast.LENGTH_LONG
+            ).show();
         }
     }
 
@@ -262,15 +242,48 @@ webView.addJavascriptInterface(new Object() {
                             Intent.URI_INTENT_SCHEME
                     );
 
-            intent.addCategory(Intent.CATEGORY_DEFAULT);
+            try {
 
-            startActivity(intent);
+                startActivity(intent);
+
+            } catch (ActivityNotFoundException e) {
+
+                String fallbackUrl =
+                        intent.getStringExtra(
+                                "browser_fallback_url"
+                        );
+
+                if (fallbackUrl != null
+                        && !fallbackUrl.isEmpty()) {
+
+                    openExternal(
+                            Uri.parse(fallbackUrl)
+                    );
+
+                } else {
+
+                    Toast.makeText(
+                            this,
+                            "தேவையான app கிடைக்கவில்லை",
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }
+
+        } catch (
+                URISyntaxException e) {
+
+            Toast.makeText(
+                    this,
+                    "Invalid app link",
+                    Toast.LENGTH_SHORT
+            ).show();
 
         } catch (Exception e) {
 
             Toast.makeText(
                     this,
-                    "Payment app open panna mudiyala",
+                    "App open panna mudiyala",
                     Toast.LENGTH_SHORT
             ).show();
         }
@@ -288,13 +301,60 @@ webView.addJavascriptInterface(new Object() {
 
             startActivity(intent);
 
-        } catch (Exception e) {
+        } catch (ActivityNotFoundException e) {
 
             Toast.makeText(
                     this,
                     "இந்த app-ஐ திறக்க முடியவில்லை",
+                    Toast.LENGTH_LONG
+            ).show();
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    this,
+                    "Link open panna mudiyala",
                     Toast.LENGTH_SHORT
             ).show();
+        }
+    }
+
+    public class WebAppInterface {
+
+        @JavascriptInterface
+        public void openExternal(String url) {
+
+            if (url == null || url.isEmpty()) {
+                return;
+            }
+
+            runOnUiThread(() -> {
+
+                try {
+
+                    Uri uri =
+                            Uri.parse(url);
+
+                    if (isExternalScheme(uri)) {
+                        handleExternalUrl(uri);
+                    } else {
+
+                        Toast.makeText(
+                                MainActivity.this,
+                                "Invalid external link",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+
+                } catch (Exception e) {
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Link open panna mudiyala",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            });
         }
     }
 
@@ -315,41 +375,14 @@ webView.addJavascriptInterface(new Object() {
 
             Uri[] results =
                     WebChromeClient.FileChooserParams
-                            .parseResult(resultCode, data);
+                            .parseResult(
+                                    resultCode,
+                                    data
+                            );
 
             filePathCallback.onReceiveValue(results);
+
             filePathCallback = null;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode,
-            String[] permissions,
-            int[] grantResults) {
-
-        super.onRequestPermissionsResult(
-                requestCode,
-                permissions,
-                grantResults
-        );
-
-        if (requestCode == LOCATION_PERMISSION_REQUEST
-                && geoCallback != null) {
-
-            boolean granted =
-                    grantResults.length > 0
-                            && grantResults[0]
-                            == PackageManager.PERMISSION_GRANTED;
-
-            geoCallback.invoke(
-                    geoOrigin,
-                    granted,
-                    false
-            );
-
-            geoCallback = null;
-            geoOrigin = null;
         }
     }
 
@@ -366,4 +399,4 @@ webView.addJavascriptInterface(new Object() {
             super.onBackPressed();
         }
     }
-}
+                }
