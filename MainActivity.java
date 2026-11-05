@@ -36,12 +36,13 @@ public class MainActivity extends Activity {
         setContentView(webView);
 
         WebSettings settings = webView.getSettings();
+
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
-        settings.setSupportMultipleWindows(true);
+        settings.setSupportMultipleWindows(false);
         settings.setGeolocationEnabled(true);
 
         settings.setUserAgentString(
@@ -55,7 +56,14 @@ public class MainActivity extends Activity {
                     WebView view,
                     WebResourceRequest request) {
 
-                return handleExternalUrl(request.getUrl());
+                Uri uri = request.getUrl();
+
+                if (uri != null && isExternalScheme(uri)) {
+                    handleExternalUrl(uri);
+                    return true;
+                }
+
+                return false;
             }
 
             @Override
@@ -63,7 +71,36 @@ public class MainActivity extends Activity {
                     WebView view,
                     String url) {
 
-                return handleExternalUrl(Uri.parse(url));
+                if (url == null) {
+                    return true;
+                }
+
+                Uri uri = Uri.parse(url);
+
+                if (isExternalScheme(uri)) {
+                    handleExternalUrl(uri);
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onPageStarted(
+                    WebView view,
+                    String url,
+                    android.graphics.Bitmap favicon) {
+
+                super.onPageStarted(view, url, favicon);
+
+                if (url != null) {
+                    Uri uri = Uri.parse(url);
+
+                    if (isExternalScheme(uri)) {
+                        view.stopLoading();
+                        handleExternalUrl(uri);
+                    }
+                }
             }
         });
 
@@ -89,6 +126,7 @@ public class MainActivity extends Activity {
                             intent,
                             FILE_CHOOSER_REQUEST
                     );
+
                 } catch (ActivityNotFoundException e) {
 
                     filePathCallback = null;
@@ -137,35 +175,35 @@ public class MainActivity extends Activity {
                     );
                 }
             }
-
-        @Override
-public boolean onCreateWindow(
-        WebView view,
-        boolean isDialog,
-        boolean isUserGesture,
-        android.os.Message resultMsg) {
-
-    WebView.HitTestResult hit = view.getHitTestResult();
-    String url = hit != null ? hit.getExtra() : null;
-
-    if (url != null) {
-        handleExternalUrl(Uri.parse(url));
-    }
-
-    return false;
-}
         });
 
-        // UPDATED FRESH MART WEBSITE
+        // Fresh Mart website
         webView.loadUrl(
                 "https://elaborate-mousse-b703f9.netlify.app"
         );
     }
 
-    private boolean handleExternalUrl(Uri uri) {
+    private boolean isExternalScheme(Uri uri) {
+
+        if (uri == null || uri.getScheme() == null) {
+            return false;
+        }
+
+        String scheme =
+                uri.getScheme().toLowerCase();
+
+        return scheme.equals("upi")
+                || scheme.equals("whatsapp")
+                || scheme.equals("intent")
+                || scheme.equals("tel")
+                || scheme.equals("mailto")
+                || scheme.equals("market");
+    }
+
+    private void handleExternalUrl(Uri uri) {
 
         if (uri == null) {
-            return true;
+            return;
         }
 
         String scheme =
@@ -173,77 +211,41 @@ public boolean onCreateWindow(
                         ? ""
                         : uri.getScheme().toLowerCase();
 
-        String host =
-                uri.getHost() == null
-                        ? ""
-                        : uri.getHost().toLowerCase();
-
-        // Normal website links
-        if (scheme.equals("http")
-                || scheme.equals("https")) {
-
-            if (host.contains("wa.me")
-                    || host.contains("whatsapp.com")
-                    || host.contains("api.whatsapp.com")
-                    || host.contains("accounts.google.com")) {
-
-                openExternal(uri);
-                return true;
-            }
-
-            return false;
-        }
-
-        // Phone / Email
-        if (scheme.equals("tel")
-                || scheme.equals("mailto")) {
-
-            openExternal(uri);
-            return true;
-        }
-
-        // UPI payment
         if (scheme.equals("upi")) {
 
             openUpi(uri);
-            return true;
-        }
 
-        // Android intent links
-        if (scheme.equals("intent")) {
+        } else if (scheme.equals("intent")) {
 
             openIntentUri(uri);
-            return true;
-        }
 
-        // Play Store / market links
-        if (scheme.equals("market")) {
+        } else {
 
             openExternal(uri);
-            return true;
         }
-
-        return true;
     }
 
     private void openUpi(Uri uri) {
 
-    try {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(uri);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        try {
 
-        startActivity(intent);
+            Intent intent =
+                    new Intent(Intent.ACTION_VIEW);
 
-    } catch (ActivityNotFoundException e) {
+            intent.setData(uri);
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
 
-        Toast.makeText(
-                this,
-                "GPay / PhonePe / Paytm போன்ற UPI app இல்லை",
-                Toast.LENGTH_LONG
-        ).show();
+            startActivity(intent);
+
+        } catch (ActivityNotFoundException e) {
+
+            Toast.makeText(
+                    this,
+                    "GPay / PhonePe / Paytm போன்ற UPI app இல்லை",
+                    Toast.LENGTH_LONG
+            ).show();
+        }
     }
-}
 
     private void openIntentUri(Uri uri) {
 
@@ -254,6 +256,8 @@ public boolean onCreateWindow(
                             uri.toString(),
                             Intent.URI_INTENT_SCHEME
                     );
+
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
 
             startActivity(intent);
 
@@ -283,7 +287,7 @@ public boolean onCreateWindow(
 
             Toast.makeText(
                     this,
-                    "இந்த link-ஐ திறக்க முடியவில்லை",
+                    "இந்த app-ஐ திறக்க முடியவில்லை",
                     Toast.LENGTH_SHORT
             ).show();
         }
