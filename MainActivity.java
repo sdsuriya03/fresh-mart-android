@@ -104,8 +104,13 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.setWebChromeClient(new WebChromeClient() {
-
+        webView.setWebChromeClient(new WebChromeClient()); {
+webView.addJavascriptInterface(new Object() {
+    @android.webkit.JavascriptInterface
+    public void openExternal(String url) {
+        runOnUiThread(() -> handleExternalUrl(android.net.Uri.parse(url)));
+    }
+}, "Android");
             @Override
             public boolean onShowFileChooser(
                     WebView view,
@@ -179,7 +184,7 @@ public class MainActivity extends Activity {
 
         // Fresh Mart website
         webView.loadUrl(
-                "https://elaborate-mousse-b703f9.netlify.app"
+               "https://heroic-dragon-8d99d1.netlify.app" 
         );
     }
 
