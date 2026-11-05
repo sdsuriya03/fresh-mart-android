@@ -228,24 +228,22 @@ public boolean onCreateWindow(
 
     private void openUpi(Uri uri) {
 
-        try {
+    try {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(uri);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
 
-            Intent intent =
-                    new Intent(Intent.ACTION_VIEW);
+        startActivity(intent);
 
-            intent.setData(uri);
+    } catch (ActivityNotFoundException e) {
 
-            startActivity(intent);
-
-        } catch (ActivityNotFoundException e) {
-
-            Toast.makeText(
-                    this,
-                    "UPI app install pannirukkingala check pannunga",
-                    Toast.LENGTH_LONG
-            ).show();
-        }
+        Toast.makeText(
+                this,
+                "GPay / PhonePe / Paytm போன்ற UPI app இல்லை",
+                Toast.LENGTH_LONG
+        ).show();
     }
+}
 
     private void openIntentUri(Uri uri) {
 
