@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Fresh Mart Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1f7a3d;
+    --green-dark: #155a2c;
+    --leaf: #e8f3ea;
+    --ink: #1c2a20;
+    --muted: #66756b;
+    --line: #d7e2da;
+    --bg: #f6f9f6;
+    --red: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Noto Sans Tamil", system-ui, sans-serif; font-size: 16px;
+  }
+  [hidden] { display: none !important; }
+  main { max-width: 640px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 22px; margin: 0; }
+  .top {
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; background: var(--green); color: #fff;
+    padding: 12px 16px; z-index: 5;
+  }
+  .top button { background: transparent; color: #fff; border: 1px solid #ffffff88; }
+  input, select, button { font: inherit; }
+  input {
+    width: 100%; padding: 11px 12px; border: 1px solid var(--line);
+    border-radius: 8px; background: #fff; color: var(--ink);
+  }
+  input:focus, button:focus-visible, summary:focus-visible { outline: 3px solid #7fc08f; outline-offset: 1px; }
+  label { display: block; font-size: 14px; color: var(--muted); margin: 10px 0 4px; }
+  button {
+    padding: 10px 16px; border-radius: 8px; border: 0; cursor: pointer;
+    background: var(--green); color: #fff; font-weight: 600;
+  }
+  button:hover { background: var(--green-dark); }
+  button:disabled { opacity: .6; cursor: default; }
+  .ghost { background: #fff; color: var(--green); border: 1px solid var(--green); }
+  .ghost:hover { background: var(--leaf); }
+  .danger { background: #fff; color: var(--red); border: 1px solid var(--red); }
+  .danger:hover { background: #fdecea; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  #login { margin-top: 60px; }
+  #login h1 { margin-bottom: 4px; color: var(--green-dark); }
+  #login p { color: var(--muted); margin-top: 0; }
+  #login button { width: 100%; margin-top: 16px; }
+  .msg { min-height: 22px; margin-top: 10px; font-size: 14px; color: var(--red); }
+  .msg.ok { color: var(--green); }
+  details.card { margin: 14px 0; }
+  summary { cursor: pointer; font-weight: 700; color: var(--green-dark); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  details button { margin-top: 14px; width: 100%; }
+  .count { color: var(--muted); font-size: 14px; margin: 12px 2px 6px; }
+  .cat { margin: 18px 2px 8px; font-weight: 700; color: var(--green-dark); }
+  .row {
+    display: grid; grid-template-columns: 44px 1fr; gap: 4px 12px;
+    margin-bottom: 10px; align-items: center;
+  }
+  .row .emoji { font-size: 34px; text-align: center; grid-row: span 2; }
+  .row .name { font-weight: 700; }
+  .row .en { color: var(--muted); font-size: 14px; font-weight: 400; }
+  .controls { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; margin-top: 8px; }
+  .price-wrap { display: flex; align-items: center; gap: 8px; }
+  .price-wrap span { color: var(--muted); white-space: nowrap; font-size: 14px; }
+  .price-wrap input { max-width: 110px; }
+  .stock { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .stock input { width: 20px; height: 20px; accent-color: var(--green); }
+  .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+  .actions .status { flex: 1; font-size: 13px; color: var(--green); }
+  .actions .status.err { color: var(--red); }
+  .out .name { text-decoration: line-through; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<main id="login" hidden>
+  <h1>Fresh Mart Admin</h1>
+  <p>விலை மாற்ற login செய்யுங்கள்</p>
+  <div class="card">
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="username" inputmode="email">
+    <label for="pass">Password</label>
+    <input id="pass" type="password" autocomplete="current-password">
+    <button id="loginBtn">Login</button>
+    <div class="msg" id="loginMsg" role="alert"></div>
+  </div>
+</main>
+
+<div id="panel" hidden>
+  <div class="top">
+    <h1>Fresh Mart Admin</h1>
+    <button id="logoutBtn">Logout</button>
+  </div>
+  <main>
+    <details class="card" id="addBox">
+      <summary>புதிய product சேர்க்க</summary>
+      <label for="nName">பெயர் (தமிழ்)</label>
+      <input id="nName" placeholder="உருளைக்கிழங்கு">
+      <label for="nEn">English name</label>
+      <input id="nEn" placeholder="Potato">
+      <div class="grid2">
+        <div><label for="nPrice">விலை (₹)</label><input id="nPrice" type="number" inputmode="numeric" min="0"></div>
+        <div><label for="nUnit">Unit</label><input id="nUnit" placeholder="1 kg"></div>
+        <div><label for="nCat">Category</label><input id="nCat" placeholder="காய்கறி"></div>
+        <div><label for="nEmoji">Emoji</label><input id="nEmoji" placeholder="🥔"></div>
+      </div>
+      <button id="addBtn">Product சேர்</button>
+      <div class="msg" id="addMsg" role="status"></div>
+    </details>
+
+    <input id="search" type="search" placeholder="Product தேட..." aria-label="Product தேட">
+    <div class="count" id="count"></div>
+    <div id="list"></div>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, deleteDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAuXaI4RB-CUaNYt4U29PkV9mEtWZlvo78",
+  authDomain: "fresh-mart-95804.firebaseapp.com",
+  projectId: "fresh-mart-95804",
+  storageBucket: "fresh-mart-95804.firebasestorage.app",
+  messagingSenderId: "622142404985",
+  appId: "1:622142404985:web:08d03c143d99a81031d7a8"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+const COL = "products";
+
+const $ = id => document.getElementById(id);
+let products = [];
+
+/* ---------- Login ---------- */
+async function doLogin() {
+  $("loginMsg").textContent = "";
+  $("loginBtn").disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, $("email").value.trim(), $("pass").value);
+  } catch (e) {
+    $("loginMsg").textContent = "Login ஆகல: email அல்லது password தவறு.";
+  }
+  $("loginBtn").disabled = false;
+}
+$("loginBtn").addEventListener("click", doLogin);
+$("pass").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+$("logoutBtn").addEventListener("click", () => signOut(auth));
+
+onAuthStateChanged(auth, user => {
+  $("login").hidden = !!user;
+  $("panel").hidden = !user;
+  if (user) load();
+});
+
+/* ---------- Load + render ---------- */
+async function load() {
+  $("count").textContent = "ஏற்றுகிறது...";
+  try {
+    const snap = await getDocs(collection(db, COL));
+    products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    render();
+  } catch (e) {
+    $("count").textContent = "Data ஏறல: " + e.code + " (Rules / collection பெயர் check பண்ணுங்க)";
+  }
+}
+
+function render() {
+  const q = $("search").value.trim().toLowerCase();
+  const list = $("list");
+  list.replaceChildren();
+  const shown = products
+    .filter(p => !q || (p.name || "").toLowerCase().includes(q) || (p.en || "").toLowerCase().includes(q))
+    .sort((a, b) => (a.cat || "").localeCompare(b.cat || "") || (a.en || "").localeCompare(b.en || ""));
+  $("count").textContent = shown.length + " products";
+
+  let lastCat = null;
+  for (const p of shown) {
+    if (p.cat !== lastCat) {
+      const h = document.createElement("div");
+      h.className = "cat";
+      h.textContent = p.cat || "மற்றவை";
+      list.append(h);
+      lastCat = p.cat;
+    }
+    list.append(rowFor(p));
+  }
+}
+$("search").addEventListener("input", render);
+
+function rowFor(p) {
+  const row = document.createElement("div");
+  row.className = "card row" + (p.inStock === false ? " out" : "");
+
+  const emoji = document.createElement("div");
+  emoji.className = "emoji";
+  emoji.textContent = p.emoji || "🛒";
+
+  const name = document.createElement("div");
+  name.className = "name";
+  name.textContent = p.name || p.en || "(பெயர் இல்லை)";
+  if (p.en) {
+    const en = document.createElement("div");
+    en.className = "en";
+    en.textContent = p.en + (p.unit ? " · " + p.unit : "");
+    name.append(en);
+  }
+
+  const controls = document.createElement("div");
+  controls.className = "controls";
+
+  const pw = document.createElement("div");
+  pw.className = "price-wrap";
+  const rs = document.createElement("span");
+  rs.textContent = "₹";
+  const price = document.createElement("input");
+  price.type = "number"; price.inputMode = "numeric"; price.min = "0";
+  price.value = p.price ?? "";
+  price.setAttribute("aria-label", "விலை");
+  const per = document.createElement("span");
+  per.textContent = "/ " + (p.unit || "");
+  pw.append(rs, price, per);
+
+  const st = document.createElement("label");
+  st.className = "stock";
+  st.style.margin = "0";
+  const chk = document.createElement("input");
+  chk.type = "checkbox"; chk.checked = p.inStock !== false;
+  st.append(chk, document.createTextNode("Stock இருக்கு"));
+
+  controls.append(pw, st);
+
+  const actions = document.createElement("div");
+  actions.className = "actions";
+  const status = document.createElement("div");
+  status.className = "status";
+  status.setAttribute("role", "status");
+  const save = document.createElement("button");
+  save.textContent = "Save";
+  const del = document.createElement("button");
+  del.textContent = "Delete";
+  del.className = "danger";
+  actions.append(status, del, save);
+
+  save.addEventListener("click", async () => {
+    const val = Number(price.value);
+    if (price.value === "" || !Number.isFinite(val) || val < 0) {
+      status.className = "status err"; status.textContent = "சரியான விலை போடுங்க"; return;
+    }
+    save.disabled = true; status.className = "status"; status.textContent = "";
+    try {
+      await updateDoc(doc(db, COL, p.id), { price: Math.round(val), inStock: chk.checked });
+      p.price = Math.round(val); p.inStock = chk.checked;
+      row.classList.toggle("out", !chk.checked);
+      status.textContent = "Saved";
+    } catch (e) {
+      status.className = "status err"; status.textContent = "Save ஆகல: " + e.code;
+    }
+    save.disabled = false;
+  });
+
+  del.addEventListener("click", async () => {
+    if (!confirm((p.name || p.en) + " நீக்கணுமா?")) return;
+    try {
+      await deleteDoc(doc(db, COL, p.id));
+      products = products.filter(x => x.id !== p.id);
+      render();
+    } catch (e) {
+      status.className = "status err"; status.textContent = "Delete ஆகல: " + e.code;
+    }
+  });
+
+  row.append(emoji, name, controls, actions);
+  return row;
+}
+
+/* ---------- Add product ---------- */
+$("addBtn").addEventListener("click", async () => {
+  const msg = $("addMsg");
+  msg.className = "msg";
+  const name = $("nName").value.trim();
+  const price = Number($("nPrice").value);
+  if (!name || $("nPrice").value === "" || !Number.isFinite(price) || price < 0) {
+    msg.textContent = "பெயரும் விலையும் கண்டிப்பா வேணும்."; return;
+  }
+  $("addBtn").disabled = true;
+  try {
+    await addDoc(collection(db, COL), {
+      name,
+      en: $("nEn").value.trim(),
+      price: Math.round(price),
+      unit: $("nUnit").value.trim(),
+      cat: $("nCat").value.trim(),
+      emoji: $("nEmoji").value.trim(),
+      inStock: true,
+      createdAt: serverTimestamp()
+    });
+    ["nName", "nEn", "nPrice", "nUnit", "nCat", "nEmoji"].forEach(id => $(id).value = "");
+    msg.className = "msg ok"; msg.textContent = "சேர்ந்தாச்சு!";
+    await load();
+  } catch (e) {
+    msg.textContent = "சேர்க்க முடியல: " + e.code;
+  }
+  $("addBtn").disabled = false;
+});
+</script>
+</body>
+</html>

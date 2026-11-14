@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FRESH MART | Thottiyam</title>
+<style>
+:root {
+  --site-primary: #176b3a;
+  --site-on-primary: #ffffff;
+  --site-secondary: #f2b544;
+  --site-on-secondary: #252016;
+  --site-background: #f7f8f2;
+  --site-on-background: #18251d;
+  --site-font-body: "Noto Sans Tamil", "Latha", system-ui, sans-serif;
+  --site-font-heading: "Noto Sans Tamil", "Latha", system-ui, sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --surface: #ffffff;
+  --muted: #66756b;
+  --border: #e4e9df;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--site-background); color: var(--site-on-background); font-family: var(--site-font-body); }
+.app { min-height: 100vh; width: 100%; border-radius: 0; background-color: var(--site-background); }
+.topbar { background: var(--site-primary); color: var(--site-on-primary); padding: 12px 5vw; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.4px; font-size:19px; }
+.logo { width:39px; height:39px; border-radius:13px; display:grid; place-items:center; background:var(--site-secondary); color:#173b24; font-size:22px; }
+.topnote { font-size:12px; opacity:.92; text-align:right; }
+.admin-open { border:1px solid #ffffff88; background:transparent; color:#fff; border-radius:10px; padding:9px 11px; font-weight:800; cursor:pointer; }
+.admin-panel { display:none; position:fixed; inset:0; z-index:20; background:#07150dcc; padding:14px; overflow:auto; }
+.admin-box { max-width:720px; margin:20px auto; background:#fff; color:#18251d; border-radius:18px; padding:18px; box-shadow:0 20px 70px #0005; }
+.admin-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.admin-head button,.admin-box button { cursor:pointer; }
+.admin-form { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0; }
+.admin-form label { font-size:12px; font-weight:800; display:grid; gap:5px; }
+.admin-form input,.admin-form select { width:100%; min-width:0; padding:11px; border:1px solid #ccd6ca; border-radius:9px; font:inherit; }
+.admin-primary { background:#176b3a; color:#fff; border:0; border-radius:10px; padding:11px 15px; font-weight:800; }
+.admin-secondary { background:#edf4ed; color:#176b3a; border:0; border-radius:10px; padding:10px 13px; font-weight:800; }
+.admin-list { display:grid; gap:8px; margin-top:14px; }
+.admin-item { border:1px solid #e1e8df; border-radius:10px; padding:10px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+.admin-item small { display:block; color:#66756b; }
+.admin-status { font-size:12px; color:#526456; background:#f1f6ed; padding:9px 11px; border-radius:9px; margin:10px 0; }
+@media(max-width:520px){.admin-form{grid-template-columns:1fr}.admin-box{margin:0 auto;padding:14px}.topnote{display:none}}
+.hero { padding: 32px 5vw 30px; background:linear-gradient(120deg, #145b33, #23874c); color:#fff; position:relative; overflow:hidden; }
+.hero:after { content:""; position:absolute; width:260px; height:260px; border-radius:50%; background:#ffffff; opacity:calc(.08 * var(--site-decoration-opacity)); right:-65px; top:-125px; }
+.hero-inner { max-width:1100px; margin:auto; position:relative; z-index:1; }
+.eyebrow { display:inline-block; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2); padding:6px 11px; border-radius:30px; font-size:12px; }
+h1 { font-family:var(--site-font-heading); font-size:calc(34px * var(--site-heading-scale)); line-height:1.2; margin:14px 0 8px; }
+.hero p { margin:0; max-width:570px; color:#e4f4e8; line-height:1.7; }
+.hero-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+.btn { border:0; border-radius:calc(12px * var(--site-radius-scale)); padding:12px 16px; font-weight:800; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:7px; }
+.btn.gold { background:var(--site-secondary); color:var(--site-on-secondary); }
+.btn.outline { border:1px solid rgba(255,255,255,.5); color:#fff; background:transparent; }
+main { max-width:1100px; margin:auto; padding:26px 5vw 100px; }
+.info-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:27px; }
+.info { background:var(--surface); border:1px solid var(--border); border-radius:calc(15px * var(--site-radius-scale)); padding:14px; display:flex; gap:10px; align-items:center; }
+.info-icon { font-size:23px; }
+.info b { display:block; font-size:13px; }
+.info small { color:var(--muted); font-size:11px; }
+.section-head { display:flex; align-items:end; justify-content:space-between; gap:12px; margin:25px 0 15px; }
+h2 { margin:0; font-size:calc(22px * var(--site-heading-scale)); }
+.section-head p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+.search { width:min(260px,48%); border:1px solid var(--border); border-radius:12px; background:var(--surface); padding:11px 13px; font:inherit; outline-color:var(--site-primary); }
+.categories { display:flex; gap:8px; overflow:auto; padding:2px 0 13px; }
+.cat { white-space:nowrap; border:1px solid var(--border); background:var(--surface); color:var(--site-on-background); border-radius:30px; padding:9px 14px; font:inherit; font-size:13px; cursor:pointer; }
+.cat.active { background:var(--site-primary); border-color:var(--site-primary); color:#fff; }
+.grid { display:grid; grid-template-columns:repeat(4,1fr); gap:13px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:calc(16px * var(--site-radius-scale)); padding:13px; min-width:0; }
+.pic { height:105px; border-radius:12px; background:#f1f6ed; display:grid; place-items:center; font-size:54px; margin-bottom:11px; }
+.card h3 { margin:0 0 4px; font-size:15px; }
+.unit { color:var(--muted); font-size:11px; }
+.price-row { display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:12px; }
+.price { font-weight:900; font-size:15px; }
+.add { border:0; background:#e9f5ec; color:#176b3a; border-radius:9px; padding:8px 11px; font-weight:900; cursor:pointer; }
+.map-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; margin:28px 0; }
+.map-frame { width:100%; height:300px; border:0; border-radius:12px; display:block; background:#edf2e9; }
+.map-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.map-actions .btn { background:var(--site-primary); color:var(--site-on-primary); }
+.note { background:#fff8e8; color:#6c4b10; border:1px solid #f2dfb8; padding:12px 14px; border-radius:12px; font-size:12px; margin-top:18px; line-height:1.6; }
+.footer { background:#153e27; color:#e9f3eb; padding:25px 5vw; }
+.footer-inner { max-width:1100px; margin:auto; display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap; }
+.footer small { color:#bfd4c4; }
+.qty{display:inline-flex;align-items:center;gap:9px;background:#173d28;color:#fff;border-radius:12px;padding:4px 6px}.qty b{min-width:18px;text-align:center}.qbtn{border:0;background:#fff;color:#173d28;width:30px;height:30px;border-radius:9px;font-size:18px;font-weight:900;cursor:pointer}
+.cohide{display:none!important}
+#checkoutPage{position:fixed;inset:0;z-index:50;background:#f6f8f4;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#checkoutPage .co-wrap{max-width:560px;margin:0 auto;padding:14px 14px 40px}
+.co-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.co-top button{border:0;background:#fff;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px #0001}
+.co-top h2{margin:0;font-size:20px}
+.co-box{background:#fff;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px #0000000d}
+.co-box h3{margin:0 0 10px;font-size:16px}
+.co-box label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+.co-box input[type=text],.co-box input[type=tel],.co-box textarea{width:100%;box-sizing:border-box;border:1.5px solid #d6ddd3;border-radius:11px;padding:12px;font-size:15px;font-family:inherit}
+.co-box textarea{min-height:66px;resize:vertical}
+.co-line{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:3px 0}
+.co-total{border-top:1.5px dashed #cfd8cb;margin-top:8px;padding-top:8px;font-weight:900;font-size:17px}
+.co-gps{width:100%;border:0;border-radius:12px;padding:13px;font-weight:800;font-size:15px;cursor:pointer;background:#e7f3ea;color:#176b3a}
+.co-loc-ok{font-size:13px;color:#176b3a;margin-top:6px;font-weight:700}
+.co-pay{display:flex;gap:10px;align-items:center;border:2px solid #d6ddd3;border-radius:13px;padding:12px;margin-bottom:8px;cursor:pointer;font-weight:800}
+.co-pay input{width:20px;height:20px;accent-color:#176b3a}
+.co-pay.sel{border-color:#176b3a;background:#eef7f0}
+.co-upi{background:#fff8e6;border-radius:12px;padding:12px;font-size:13px;margin-top:4px}
+.co-upi button{border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer;background:#f2b544;color:#252016;margin:6px 6px 0 0}
+.co-err{color:#c0392b;font-weight:700;font-size:13px;margin:8px 0 0;min-height:16px}
+.co-place{width:100%;border:0;border-radius:14px;padding:16px;font-weight:900;font-size:17px;cursor:pointer;background:#173d28;color:#fff}
+.cartbar { position:fixed; z-index:5; bottom:14px; left:50%; transform:translateX(-50%); width:min(560px, calc(100% - 24px)); background:#173d28; color:#fff; border-radius:16px; padding:10px 12px 10px 17px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 10px 35px #102d1d55; }
+.cartbar small { display:block; color:#cfe1d2; font-size:11px; }
+.cartbar button { background:var(--site-secondary); color:#252016; border:0; border-radius:11px; padding:11px 14px; font-weight:900; cursor:pointer; }
+.empty { grid-column:1/-1; color:var(--muted); padding:28px; text-align:center; background:var(--surface); border-radius:14px; }
+@media(max-width:760px){ .grid{grid-template-columns:repeat(2,1fr)} .info-row{grid-template-columns:1fr} .info{padding:10px 13px} .hero{padding-top:27px} h1{font-size:29px} }
+@media(min-width:761px){ main{padding-bottom:115px} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="logo">🌿</span><span>FRESH MART</span></div>
+    <div style="display:flex;align-items:center;gap:10px"><button class="admin-open" id="adminOpen">⚙ Admin</button><div class="topnote">THOTTIYAM<br>Fresh • Quality • Value</div></div>
+  </header>
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow">🛵 Home delivery available</span>
+      <h1>உங்களுக்கு தேவையானது<br>இனி ஒரே இடத்தில்!</h1>
+      <p>காய்கறிகள், பழங்கள் மற்றும் மளிகைப் பொருட்களை வீட்டிலிருந்தே தேர்வு செய்து WhatsApp-ல் ஆர்டர் செய்யுங்கள்.</p>
+      <div class="hero-actions">
+        <a class="btn gold" href="#products">🛒 பொருட்களைப் பாருங்கள்</a>
+        <a class="btn outline" href="https://maps.app.goo.gl/onjMWXbM79jRsXtn6" target="_blank" rel="noopener">📍 கடை Location</a>
+      </div>
+    </div>
+  </section>
+  <main>
+    <div class="info-row">
+      <div class="info"><span class="info-icon">🥬</span><div><b>Fresh Products</b><small>தரமான தினசரி பொருட்கள்</small></div></div>
+      <div class="info"><span class="info-icon">🛵</span><div><b>6 KM Delivery</b><small>கடை சுற்றி 6 கி.மீ. வரை</small></div></div>
+      <div class="info"><span class="info-icon">💬</span><div><b>Easy WhatsApp Order</b><small>நேரடியாக ஆர்டர் அனுப்பலாம்</small></div></div>
+    </div>
+    <section class="map-card" id="store-location">
+      <div class="section-head"><div><h2>📍 எங்கள் கடை எங்கே?</h2><p>FRESH MART — NH 381B, Balasamudram, Tholurpatti, Tamil Nadu 621203</p></div></div>
+      <iframe class="map-frame" title="FRESH MART store location on Google Maps" loading="lazy" src="https://www.google.com/maps?q=10.9963746,78.3233119&z=16&output=embed" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      <div class="map-actions"><a class="btn" href="https://maps.app.goo.gl/onjMWXbM79jRsXtn6" target="_blank" rel="noopener">🧭 Google Maps-ல் வழி காண்க</a></div>
+    </section>
+    <section id="products">
+      <div class="section-head"><div><h2>🛍️ Shop Products</h2><p>உங்களுக்கு தேவையான பொருட்களை Cart-ல் சேர்க்கவும்.</p></div><input class="search" id="search" placeholder="பொருளைத் தேடுங்கள்…" aria-label="Search products"></div>
+      <div class="categories" id="categories"></div>
+      <div class="grid" id="grid"></div>
+      <div class="note">குறிப்பு: தொடக்கத்தில் காட்டப்படும் விலைகள் மாதிரி விலைகள். Admin Login செய்து உண்மையான விலை மற்றும் Stock விவரங்களை மாற்றவும். WhatsApp ஆர்டரை கடை உறுதிப்படுத்தும்.</div>
+    </section>
+  </main>
+
+  <section class="admin-panel" id="adminPanel" aria-modal="true" role="dialog">
+    <div class="admin-box">
+      <div class="admin-head"><div><h2>🌿 FRESH MART Admin</h2><small>இரண்டு மொபைலிலும் இதே account பயன்படுத்தலாம்.</small></div><button class="admin-secondary" id="adminClose">✕ மூடு</button></div>
+      <div id="loginArea">
+        <p>Admin Email மற்றும் புதிதாக உருவாக்கிய Admin Password பயன்படுத்தி Login செய்.</p>
+        <div class="admin-form" style="grid-template-columns:1fr">
+          <label>Email<input id="adminEmail" type="email" autocomplete="username" placeholder="Admin email"></label>
+          <label>Password<input id="adminPassword" type="password" autocomplete="current-password" placeholder="Admin password"></label>
+        </div>
+        <button class="admin-primary" id="loginBtn">Login</button>
+      </div>
+      <div id="manageArea" hidden>
+        <div class="admin-status" id="cloudStatus">Firebase இணைப்பு நிலை சரிபார்க்கப்படுகிறது…</div>
+        <button class="admin-secondary" id="logoutBtn">Logout</button>
+        <h3 id="formTitle">புதிய பொருள் சேர்</h3>
+        <form id="productForm">
+          <div class="admin-form">
+            <label>பொருள் பெயர் *<input id="pName" required placeholder="தக்காளி"></label>
+            <label>English Name<input id="pEn" placeholder="Tomato"></label>
+            <label>Category *<select id="pCat"><option>காய்கறிகள்</option><option>பழங்கள்</option><option>மளிகை</option></select></label>
+            <label>Unit<input id="pUnit" required placeholder="1 kg"></label>
+            <label>விலை (₹) *<input id="pPrice" type="number" min="0" step="0.01" required placeholder="35"></label>
+            <label>Emoji<input id="pEmoji" placeholder="🍅" maxlength="8"></label>
+            <label style="grid-column:1/-1">📷 Gallery-ல இருந்து Photo<input id="pFile" type="file" accept="image/*"></label><img id="pPreview" alt="" hidden style="grid-column:1/-1;max-width:150px;border-radius:12px;border:1px solid #e1e8df"><label style="grid-column:1/-1">Photo URL (விருப்பம்)<input id="pImage" type="url" placeholder="https://...jpg"></label>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><input id="pStock" type="checkbox" checked> Stock உள்ளது</label>
+          <button class="admin-primary" type="submit" id="saveProduct">பொருளை சேமி</button>
+          <button class="admin-secondary" type="button" id="cancelEdit" hidden>Cancel</button>
+        </form>
+        <hr style="border:0;border-top:1px solid #e3e9e1;margin:18px 0">
+        <h3>பொருட்கள் பட்டியல்</h3>
+        <button class="admin-secondary" id="seedProducts">மாதிரி 12 பொருட்களை Firebase-ல் சேர்க்க</button>
+        <div class="admin-list" id="adminList"></div>
+      </div>
+      <p class="admin-status" id="adminMessage" role="status">குறிப்பு: Firebase Security Rules-ல் Admin email-க்கு மட்டும் write permission கொடுக்க வேண்டும்.</p>
+    </div>
+  </section>
+  <footer class="footer"><div class="footer-inner"><div><b>🌿 FRESH MART</b><br><small>Thottiyam • Freshness at your doorstep</small></div><div><b>📞 74490 61068</b><br><small>WhatsApp Orders</small></div></div></footer>
+    <div id="checkoutPage" class="cohide"><div class="co-wrap">
+    <div class="co-top"><button id="coBack" type="button">← பின்னால்</button><h2>🧾 Checkout</h2></div>
+    <div class="co-box"><h3>🛒 உங்கள் Order</h3><div id="coItems"></div><div class="co-line co-total"><span>மொத்தம்</span><span id="coTotal">₹0</span></div></div>
+    <div class="co-box"><h3>📍 Delivery Details</h3>
+      <label for="coName">பெயர்</label><input type="text" id="coName" placeholder="உங்கள் பெயர்" autocomplete="name">
+      <label for="coPhone">மொபைல் எண் *</label><input type="tel" id="coPhone" inputmode="numeric" maxlength="10" placeholder="10 இலக்க மொபைல் எண்" autocomplete="tel">
+      <label>Location *</label>
+      <button type="button" class="co-gps" id="coGps">📍 என் தற்போதைய Location எடு</button>
+      <div class="co-loc-ok" id="coLocOk"></div>
+      <label for="coAddr">முகவரி / தெரு / பகுதி *</label><textarea id="coAddr" placeholder="வீட்டு எண், தெரு, ஊர்"></textarea>
+      <label for="coLand">Landmark *</label><input type="text" id="coLand" placeholder="எ.கா: கோவில் அருகில், பஸ் ஸ்டாப் எதிரில்">
+    </div>
+    <div class="co-box"><h3>💳 Payment</h3>
+      <label class="co-pay sel" id="payCodL"><input type="radio" name="pay" value="COD" checked> 💵 Cash on Delivery</label>
+      <label class="co-pay" id="payUpiL"><input type="radio" name="pay" value="UPI"> 📲 UPI Payment</label>
+      <div class="co-upi cohide" id="coUpi">
+        <div>UPI ID: <b id="coUpiId"></b></div>
+        <button type="button" id="coUpiPay">📲 UPI App-ல் Pay செய்</button><button type="button" id="coUpiCopy">UPI ID Copy</button>
+        <div style="margin-top:8px">Pay செய்த பிறகு கீழே "Order உறுதி செய்" அழுத்துங்கள். Payment screenshot-ஐ WhatsApp-ல் அனுப்புங்கள்.</div>
+      </div>
+    </div>
+    <div class="co-err" id="coErr" role="alert"></div>
+    <button type="button" class="co-place" id="coPlace">✅ Order உறுதி செய் (WhatsApp)</button>
+  </div></div>
+  <div class="cartbar"><div><b id="cartcount">0 items</b><small id="carttotal">Total: ₹0</small></div><button id="checkout">Order செய்ய →</button></div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAuXaI4RB-CUaNYt4U29PkV9mEtWZlvo78",
+  authDomain: "fresh-mart-95804.firebaseapp.com",
+  projectId: "fresh-mart-95804",
+  storageBucket: "fresh-mart-95804.firebasestorage.app",
+  messagingSenderId: "622142404985",
+  appId: "1:622142404985:web:08d03c143d99a81031d7a8",
+  measurementId: "G-EF6PDB31D4"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const demoProducts = [
+ {id:'demo1',name:'தக்காளி',en:'Tomato',cat:'காய்கறிகள்',emoji:'🍅',unit:'1 kg',price:35},
+ {id:'demo2',name:'வெங்காயம்',en:'Onion',cat:'காய்கறிகள்',emoji:'🧅',unit:'1 kg',price:40},
+ {id:'demo3',name:'உருளைக்கிழங்கு',en:'Potato',cat:'காய்கறிகள்',emoji:'🥔',unit:'1 kg',price:38},
+ {id:'demo4',name:'கேரட்',en:'Carrot',cat:'காய்கறிகள்',emoji:'🥕',unit:'1 kg',price:50},
+ {id:'demo5',name:'வாழைப்பழம்',en:'Banana',cat:'பழங்கள்',emoji:'🍌',unit:'1 dozen',price:60},
+ {id:'demo6',name:'ஆப்பிள்',en:'Apple',cat:'பழங்கள்',emoji:'🍎',unit:'1 kg',price:160},
+ {id:'demo7',name:'ஆரஞ்சு',en:'Orange',cat:'பழங்கள்',emoji:'🍊',unit:'1 kg',price:90},
+ {id:'demo8',name:'அரிசி',en:'Rice',cat:'மளிகை',emoji:'🍚',unit:'1 kg',price:65},
+ {id:'demo9',name:'சர்க்கரை',en:'Sugar',cat:'மளிகை',emoji:'🧂',unit:'1 kg',price:48},
+ {id:'demo10',name:'சமையல் எண்ணெய்',en:'Cooking Oil',cat:'மளிகை',emoji:'🫗',unit:'1 litre',price:145},
+ {id:'demo11',name:'பால்',en:'Milk',cat:'மளிகை',emoji:'🥛',unit:'500 ml',price:30},
+ {id:'demo12',name:'முட்டை',en:'Egg',cat:'மளிகை',emoji:'🥚',unit:'1 piece',price:7}
+];
+let products = [...demoProducts];
+const cart = {};
+let active = 'அனைத்தும்';
+let editingId = null;
+let stopProducts = null;
+const categories = ['அனைத்தும்','காய்கறிகள்','பழங்கள்','மளிகை'];
+const grid = document.getElementById('grid');
+const money = n => `₹${Number(n||0).toLocaleString('en-IN')}`;
+function renderCats(){document.getElementById('categories').innerHTML=categories.map(c=>`<button class="cat ${active===c?'active':''}" data-cat="${c}">${c}</button>`).join('');document.querySelectorAll('.cat').forEach(b=>b.addEventListener('click',()=>{active=b.dataset.cat;renderCats();renderProducts();}));}
+function renderProducts(){const q=document.getElementById('search').value.trim().toLowerCase();const list=products.filter(p=>(active==='அனைத்தும்'||p.cat===active)&&(`${p.name} ${p.en||''}`.toLowerCase().includes(q)));grid.innerHTML=list.length?list.map(p=>`<article class="card"><div class="pic">${p.image?`<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.replaceWith(document.createTextNode('${p.emoji||'🛒'}'))">`:(p.emoji||'🛒')}</div><h3>${p.name}</h3><div class="unit">${p.en||''} • ${p.unit||''}${p.inStock===false?' • Stock இல்லை':''}</div><div class="price-row"><span class="price">${money(p.price)}</span>${p.inStock===false?'<button class="add" disabled>Out of stock</button>':(cart[p.id]?`<div class="qty"><button class="qbtn" data-minus="${p.id}" aria-label="குறை">−</button><b>${cart[p.id]}</b><button class="qbtn" data-add="${p.id}" aria-label="கூட்டு">+</button></div>`:`<button class="add" data-add="${p.id}">+ Add</button>`)}</div></article>`).join(''):'<div class="empty">பொருட்கள் கிடைக்கவில்லை.</div>';document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.add;cart[id]=(cart[id]||0)+1;renderProducts();renderCart();}));document.querySelectorAll('[data-minus]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.minus;if((cart[id]||0)>1){cart[id]--;}else{delete cart[id];}renderProducts();renderCart();}));}
+function renderCart(){let count=0,total=0;products.forEach(p=>{const n=cart[p.id]||0;count+=n;total+=n*Number(p.price||0);});document.getElementById('cartcount').textContent=`${count} items`;document.getElementById('carttotal').textContent=`Total: ${money(total)}`;}
+document.getElementById('search').addEventListener('input',renderProducts);
+/* ===== Checkout page ===== */
+const SHOP_WA='917449061068';
+const UPI_ID='sksuriyasksuriya1@okaxis';
+let coLoc=null, coOrderId='';
+const $=id=>document.getElementById(id);
+function cartLines(){return products.filter(p=>cart[p.id]);}
+function cartTotal(){return products.reduce((a,p)=>a+(cart[p.id]||0)*Number(p.price||0),0);}
+function openCheckout(){
+  const items=cartLines();
+  if(!items.length){alert('முதலில் பொருட்களை Cart-ல் சேர்க்கவும்.');return;}
+  coOrderId='FM'+String(Date.now()).slice(-6);
+  $('coItems').innerHTML=items.map(p=>`<div class="co-line"><span>${p.name} (${p.unit||''}) × ${cart[p.id]}</span><b>${money(p.price*cart[p.id])}</b></div>`).join('');
+  $('coTotal').textContent=money(cartTotal());
+  $('coUpiId').textContent=UPI_ID;
+  $('coErr').textContent='';
+  $('checkoutPage').classList.remove('cohide');
+  $('checkoutPage').scrollTop=0;
+}
+function closeCheckout(){$('checkoutPage').classList.add('cohide');}
+$('checkout').addEventListener('click',openCheckout);
+$('coBack').addEventListener('click',closeCheckout);
+document.querySelectorAll('input[name=pay]').forEach(r=>r.addEventListener('change',()=>{
+  const upi=document.querySelector('input[name=pay]:checked').value==='UPI';
+  $('coUpi').classList.toggle('cohide',!upi);
+  $('payUpiL').classList.toggle('sel',upi);$('payCodL').classList.toggle('sel',!upi);
+}));
+$('coGps').addEventListener('click',()=>{
+  const out=$('coLocOk');
+  if(!navigator.geolocation){out.textContent='இந்த போனில் Location கிடைக்கவில்லை. முகவரியை எழுதுங்கள்.';return;}
+  out.textContent='Location எடுக்கிறது…';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    coLoc={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    out.textContent='✅ Location எடுக்கப்பட்டது';
+  },err=>{
+    coLoc=null;
+    out.textContent='Location அனுமதி கிடைக்கவில்லை. முகவரியை எழுதுங்கள்.';
+  },{enableHighAccuracy:true,timeout:15000});
+});
+$('coUpiCopy').addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(UPI_ID);$('coUpiCopy').textContent='✅ Copy ஆனது';}catch(e){alert('UPI ID: '+UPI_ID);}
+});
+$('coUpiPay').addEventListener('click',()=>{
+  if(UPI_ID.startsWith('PUT-')){alert('கடையின் UPI ID இன்னும் set செய்யப்படவில்லை.');return;}
+  const url=`upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent('FRESH MART')}&am=${cartTotal()}&cu=INR&tn=${encodeURIComponent('Order '+coOrderId)}`;
+  window.location.href=url;
+});
+$('coPlace').addEventListener('click',()=>{
+  const err=$('coErr');
+  const phone=$('coPhone').value.replace(/\D/g,'');
+  const addr=$('coAddr').value.trim(), land=$('coLand').value.trim(), name=$('coName').value.trim();
+  const pay=document.querySelector('input[name=pay]:checked').value;
+  if(!/^[6-9]\d{9}$/.test(phone)){err.textContent='சரியான 10 இலக்க மொபைல் எண்ணை உள்ளிடுங்கள்.';return;}
+  if(!coLoc&&!addr){err.textContent='Location எடுக்கவும் அல்லது முகவரியை எழுதவும்.';return;}
+  if(!addr){err.textContent='முகவரி / தெரு / பகுதியை எழுதுங்கள்.';return;}
+  if(!land){err.textContent='Landmark-ஐ எழுதுங்கள்.';return;}
+  err.textContent='';
+  const lines=cartLines().map(p=>`• ${p.name} (${p.unit||''}) x ${cart[p.id]} = ${money(p.price*cart[p.id])}`);
+  const mapLink=coLoc?`https://www.google.com/maps?q=${coLoc.lat},${coLoc.lng}`:'(கொடுக்கப்படவில்லை)';
+  const payTxt=pay==='COD'?'Cash on Delivery':'UPI (Pay செய்தேன், screenshot அனுப்புகிறேன்)';
+  const msg=`வணக்கம் FRESH MART! புதிய Order (${coOrderId})\n\n${lines.join('\n')}\n\nமொத்தம்: ${money(cartTotal())}\n\nபெயர்: ${name||'-'}\nமொபைல்: ${phone}\nமுகவரி: ${addr}\nLandmark: ${land}\nLocation: ${mapLink}\nPayment: ${payTxt}`;
+  window.open('https://wa.me/'+SHOP_WA+'?text='+encodeURIComponent(msg),'_blank');
+  Object.keys(cart).forEach(k=>delete cart[k]);
+  renderProducts();renderCart();closeCheckout();
+});
+renderCats();renderProducts();renderCart();
+
+const panel=document.getElementById('adminPanel');
+const msg=(t)=>document.getElementById('adminMessage').textContent=t;
+document.getElementById('adminOpen').addEventListener('click',()=>panel.style.display='block');
+document.getElementById('adminClose').addEventListener('click',()=>panel.style.display='none');
+document.getElementById('loginBtn').addEventListener('click',async()=>{const email=document.getElementById('adminEmail').value.trim();const password=document.getElementById('adminPassword').value;if(!email||!password){msg('Email மற்றும் Password நிரப்பவும்.');return;}try{await signInWithEmailAndPassword(auth,email,password);msg('Login வெற்றி!');}catch(e){msg('Login முடியவில்லை: '+e.message);}});
+document.getElementById('logoutBtn').addEventListener('click',()=>signOut(auth));
+const productsQuery=query(collection(db,'products'),orderBy('name'));
+stopProducts=onSnapshot(productsQuery,snap=>{products=snap.docs.map(d=>({id:d.id,...d.data()}));if(!products.length)products=[...demoProducts];renderProducts();renderCart();renderAdminList();const status=document.getElementById('cloudStatus');if(status)status.textContent=`Firebase இணைப்பு சரி • ${snap.size} cloud products`;},err=>{console.warn('Products sync:',err);document.getElementById('cloudStatus').textContent='Cloud read முடியவில்லை: '+err.message;});
+onAuthStateChanged(auth,user=>{document.getElementById('loginArea').hidden=!!user;document.getElementById('manageArea').hidden=!user;if(user){document.getElementById('cloudStatus').textContent='Login: '+user.email+' | Cloud products sync ஆகும்.';renderAdminList();}});
+let newImage=null;
+function fileToDataUrl(file){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const max=480;const r=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',0.75));};img.onerror=()=>rej(new Error('Photo படிக்க முடியவில்லை'));img.src=url;});}
+document.getElementById('pFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{newImage=await fileToDataUrl(f);const pv=document.getElementById('pPreview');pv.src=newImage;pv.hidden=false;msg('Photo தயார். "சேமி" அழுத்தவும்.');}catch(err){msg(err.message);}});
+function resetForm(){editingId=null;newImage=null;document.getElementById('pPreview').hidden=true;document.getElementById('productForm').reset();document.getElementById('pStock').checked=true;document.getElementById('formTitle').textContent='புதிய பொருள் சேர்';document.getElementById('saveProduct').textContent='பொருளை சேமி';document.getElementById('cancelEdit').hidden=true;}
+function renderAdminList(){const el=document.getElementById('adminList');el.innerHTML=products.map(p=>`<div class="admin-item"><div><b>${p.emoji||'🛒'} ${p.name}</b><small>${p.cat} • ${p.unit} • ${money(p.price)} ${p.inStock===false?'• Stock இல்லை':''}</small></div><div style="display:flex;gap:6px"><button class="admin-secondary" data-edit="${p.id}">Edit</button><button class="admin-secondary" data-delete="${p.id}">Delete</button></div></div>`).join('');el.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{const p=products.find(x=>x.id===b.dataset.edit);if(!p)return;editingId=p.id;document.getElementById('pName').value=p.name||'';document.getElementById('pEn').value=p.en||'';document.getElementById('pCat').value=p.cat||'மளிகை';document.getElementById('pUnit').value=p.unit||'';document.getElementById('pPrice').value=p.price||0;document.getElementById('pEmoji').value=p.emoji||'';const isData=(p.image||'').startsWith('data:');document.getElementById('pImage').value=isData?'':(p.image||'');newImage=isData?p.image:null;const pv=document.getElementById('pPreview');if(p.image){pv.src=p.image;pv.hidden=false;}else{pv.hidden=true;}document.getElementById('pStock').checked=p.inStock!==false;document.getElementById('formTitle').textContent='பொருளை திருத்து';document.getElementById('saveProduct').textContent='மாற்றத்தை சேமி';document.getElementById('cancelEdit').hidden=false;});el.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('இந்த பொருளை நீக்கவா?'))return;try{await deleteDoc(doc(db,'products',b.dataset.delete));msg('பொருள் நீக்கப்பட்டது.');}catch(e){msg('Delete error: '+e.message);}});}
+document.getElementById('cancelEdit').onclick=resetForm;
+document.getElementById('productForm').addEventListener('submit',async e=>{e.preventDefault();const data={name:document.getElementById('pName').value.trim(),en:document.getElementById('pEn').value.trim(),cat:document.getElementById('pCat').value,unit:document.getElementById('pUnit').value.trim(),price:Number(document.getElementById('pPrice').value),emoji:document.getElementById('pEmoji').value.trim()||'🛒',image:newImage||document.getElementById('pImage').value.trim(),inStock:document.getElementById('pStock').checked,updatedAt:serverTimestamp()};try{if(editingId)await updateDoc(doc(db,'products',editingId),data);else await addDoc(collection(db,'products'),{...data,createdAt:serverTimestamp()});resetForm();msg('பொருள் Firebase-ல் சேமிக்கப்பட்டது. இரண்டு மொபைலிலும் update ஆகும்.');}catch(err){msg('சேமிக்க முடியவில்லை: '+err.message+' | Security Rules அமைக்க வேண்டும்.');}});
+document.getElementById('seedProducts').addEventListener('click',async()=>{if(!confirm('மாதிரி 12 பொருட்களை Firebase-ல் சேர்க்கவா? விலைகள் மாதிரி விலைகள் மட்டுமே.'))return;try{const snap=await getDocs(collection(db,'products'));if(!snap.empty){msg('Firebase-ல் ஏற்கனவே பொருட்கள் உள்ளன; மீண்டும் சேர்க்கவில்லை.');return;}for(const p of demoProducts){const {id,...data}=p;await addDoc(collection(db,'products'),{...data,inStock:true,createdAt:serverTimestamp()});}msg('மாதிரி பொருட்கள் சேர்க்கப்பட்டன. உண்மையான விலைகளை Edit செய்யவும்.');}catch(e){msg('சேர்க்க முடியவில்லை: '+e.message);}});
+</script>
+</body>
+</html>
