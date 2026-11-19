@@ -12,7 +12,11 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
       - name: Decode keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > $GITHUB_WORKSPACE/release.keystore
@@ -23,27 +27,10 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          chmod +x ./gradlew
-          ./gradlew bundleRelease
+        run: gradle clean bundleRelease --info
 
       - uses: actions/upload-artifact@v4
         with:
-          name: freshmart-aab
-          path: app/build/outputs/bundle/release/*.aab
-
-# ---- app/build.gradle (android { } உள்ள) இதை add பண்ணுங்க ----
-#
-#   signingConfigs {
-#       release {
-#           storeFile file(System.getenv("KEYSTORE_PATH") ?: "release.keystore")
-#           storePassword System.getenv("KEYSTORE_PASSWORD")
-#           keyAlias System.getenv("KEY_ALIAS")
-#           keyPassword System.getenv("KEY_PASSWORD")
-#       }
-#   }
-#   buildTypes {
-#       release {
-#           signingConfig signingConfigs.release
-#       }
-#   }
+          name: Fresh-Mart-AAB
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
